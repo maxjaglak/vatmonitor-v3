@@ -9,13 +9,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.EntryPoint
-import oo.max.vatmonitor3.databinding.FragmentDashboardBinding
+import oo.max.vatmonitor3.databinding.FragmentHistoryBinding
 
 //@EntryPoint
 class HistoryFragment : Fragment() {
 
     private lateinit var historyViewModel: HistoryViewModel
-    private var _binding: FragmentDashboardBinding? = null
+    private var _binding: FragmentHistoryBinding? = null
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -29,14 +29,13 @@ class HistoryFragment : Fragment() {
         historyViewModel =
             ViewModelProvider(this).get(HistoryViewModel::class.java)
 
-        _binding = FragmentDashboardBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        _binding = FragmentHistoryBinding.inflate(inflater, container, false)
 
-        val textView: TextView = binding.textDashboard
         historyViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
+            _binding?.textDashboard?.text = it
         })
-        return root
+
+        return binding.root
     }
 
     override fun onDestroyView() {
