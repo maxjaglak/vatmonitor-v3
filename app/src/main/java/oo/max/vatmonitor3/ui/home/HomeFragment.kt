@@ -4,15 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
 import oo.max.vatmonitor3.R
+import oo.max.vatmonitor3.core.extension.gone
+import oo.max.vatmonitor3.core.extension.visible
 import oo.max.vatmonitor3.databinding.FragmentHomeBinding
-import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -22,8 +21,6 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -33,10 +30,44 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        homeViewModel.text.observe(viewLifecycleOwner, Observer {
-            this._binding?.textHome?.text = it
-        })
+        setupLiveData()
+        setupLayout()
         return binding.root
+    }
+
+    private fun setupLiveData() {
+        homeViewModel.nipStatus.observe(viewLifecycleOwner, Observer {
+            bindNipStatusData(it)
+        })
+        homeViewModel.progress.observe(viewLifecycleOwner, { showProgress ->
+            if (showProgress) _binding?.progressContainer?.visible()
+            else _binding?.progressContainer?.gone()
+        })
+    }
+
+    private fun bindNipStatusData(nipStatusData: NipStatusData?) {
+        if (nipStatusData == null) {
+            _binding?.resultTextOk?.gone()
+            _binding?.resultTextNotValid?.gone()
+        } else {
+            if (nipStatusData.isValidVatPayer) {
+                _binding?.resultTextOk?.visible()
+                _binding?.resultTextNotValid?.gone()
+            } else {
+                _binding?.resultTextOk?.gone()
+                _binding?.resultTextNotValid?.visible()
+            }
+        }
+    }
+
+    private fun setupLayout() {
+        _binding?.checkStatusButton?.setOnClickListener {
+            _binding?.nipEdit?.let {
+                val nip = it.text.toString()
+                homeViewModel.checkButtonClicked(nip)
+            }
+        }
+
     }
 
     override fun onDestroyView() {
