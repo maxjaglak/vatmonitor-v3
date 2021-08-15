@@ -11,4 +11,5 @@
     <string name="home_check_button">Check</string>
     <string name="home_nip_not_active">Nip status not verified, check website to be sure!</string>
     <string name="home_nip_ok">"Looks good :)"</string>
+    <string name="nip_number_description">Nip number description</string>
 </resources>

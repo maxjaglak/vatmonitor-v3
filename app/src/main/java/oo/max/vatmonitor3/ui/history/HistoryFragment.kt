@@ -6,40 +6,55 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.EntryPoint
+import dagger.hilt.android.AndroidEntryPoint
+import oo.max.vatmonitor3.R
 import oo.max.vatmonitor3.databinding.FragmentHistoryBinding
+import oo.max.vatmonitor3.ui.history.adapter.NipNumbersAdapter
 
-//@EntryPoint
+@AndroidEntryPoint
 class HistoryFragment : Fragment() {
 
-    private lateinit var historyViewModel: HistoryViewModel
+    private val historyViewModel: HistoryViewModel by hiltNavGraphViewModels(R.id.main_navigation)
     private var _binding: FragmentHistoryBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
+    private var adapter: NipNumbersAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        historyViewModel =
-            ViewModelProvider(this).get(HistoryViewModel::class.java)
-
         _binding = FragmentHistoryBinding.inflate(inflater, container, false)
 
-        historyViewModel.text.observe(viewLifecycleOwner, Observer {
-            _binding?.textDashboard?.text = it
+        setupAdapter()
+
+        historyViewModel.listOfNipNumbers.observe(viewLifecycleOwner, { data ->
+            adapter?.updateItems(data)
         })
 
         return binding.root
+    }
+
+    private fun setupAdapter() {
+        adapter = NipNumbersAdapter(requireContext())
+        _binding?.nipNumbersRecycler?.adapter = adapter
+        _binding?.nipNumbersRecycler?.layoutManager = LinearLayoutManager(requireContext())
+    }
+
+    override fun onResume() {
+        super.onResume()
+        historyViewModel.viewLoaded()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+
 }
